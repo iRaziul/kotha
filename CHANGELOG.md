@@ -1,5 +1,25 @@
 # Changelog
 
+## v1.0.0 - 2026-01-29
+
+🎉 First stable release of Kotha
+
+Features:
+
+- Multiple SMS gateway support (eSMS, MimSMS)
+- Log driver for development/testing
+- Bulk SMS to multiple recipients
+- Queue support for background processing
+- Laravel Notifications integration
+- Automatic BD phone number formatting
+
+Requirements:
+
+- PHP 8.4+
+- Laravel 11.x or 12.x
+
+**Full Changelog**: https://github.com/iRaziul/kotha/commits/v1.0.0
+
 ## [1.0.0] - 2026-01-29
 
 ### Added
