@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.2.0 - 2026-02-01
+
+### Added
+
+- Add `smsnoc` driver
+- Rename project from `kotha` to `barta`
+
+### Changed
+
+- Update documentation
+
 ## v1.1.0 - 2026-01-29
 
 ### What's Changed
