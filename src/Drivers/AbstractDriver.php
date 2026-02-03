@@ -8,6 +8,7 @@ use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Str;
 use Larament\Barta\Data\ResponseData;
 use Larament\Barta\Exceptions\BartaException;
+use Larament\Barta\Helpers\Util;
 use Larament\Barta\Jobs\SendSmsJob;
 
 abstract class AbstractDriver
@@ -28,9 +29,11 @@ abstract class AbstractDriver
     public function __construct(
         protected array $config = [],
     ) {
-        $this->timeout = config()->integer('barta.request.timeout');
-        $this->retry = config()->integer('barta.request.retry');
-        $this->retryDelay = config()->integer('barta.request.retry_delay');
+        [
+            'timeout' => $this->timeout,
+            'retry' => $this->retry,
+            'retry_delay' => $this->retryDelay,
+        ] = config('barta.request');
     }
 
     /**
@@ -51,13 +54,8 @@ abstract class AbstractDriver
             message: $this->message,
         );
 
-        if ($queue) {
-            $job->onQueue($queue);
-        }
-
-        if ($connection) {
-            $job->onConnection($connection);
-        }
+        $job->onQueue($queue)
+            ->onConnection($connection);
 
         return dispatch($job);
     }
@@ -70,7 +68,7 @@ abstract class AbstractDriver
     final public function to(string|array $numbers): self
     {
         $this->recipients = array_map(
-            fn (string $number) => $this->formatPhoneNumber($number),
+            fn (string $number) => Util::formatPhoneNumber($number),
             is_array($numbers) ? $numbers : [$numbers]
         );
 
@@ -98,25 +96,6 @@ abstract class AbstractDriver
             ->before('Driver')
             ->lower()
             ->toString();
-    }
-
-    /**
-     * Standardizes BD phone numbers to 8801XXXXXXXXX format.
-     */
-    protected function formatPhoneNumber(string $number): string
-    {
-        $phone = Str::of($number)
-            ->replaceMatches('/\D/', '')
-            ->ltrim('88')
-            ->ltrim('0')
-            ->prepend('880')
-            ->toString();
-
-        if (! preg_match('/^8801[3-9][0-9]{8}$/', $phone)) {
-            throw BartaException::invalidNumber($number);
-        }
-
-        return $phone;
     }
 
     /**

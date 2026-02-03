@@ -15,34 +15,21 @@ class ConcreteDriver extends AbstractDriver
 
         return new ResponseData(success: true);
     }
-
-    public function callFormatPhoneNumber(string $number): string
-    {
-        return $this->formatPhoneNumber($number);
-    }
 }
 
-it('formats valid bangladeshi numbers with 88 prefix', function (string $input, string $expected) {
+it('throws exception when recipients are missing', function () {
     $driver = new ConcreteDriver;
-    expect($driver->callFormatPhoneNumber($input))->toBe($expected);
-})->with([
-    '01700000000' => ['01700000000', '8801700000000'],
-    '8801700000000' => ['8801700000000', '8801700000000'],
-    '+8801700000000' => ['+8801700000000', '8801700000000'],
-    '  01700000000  ' => ['  01700000000  ', '8801700000000'], // With spaces
-    '017-0000-0000' => ['017-0000-0000', '8801700000000'], // With hyphens
-]);
-
-it('throws exception for invalid bangladeshi numbers', function (string $input) {
-    $driver = new ConcreteDriver;
-    $driver->callFormatPhoneNumber($input);
-})->throws(BartaException::class)->with([
-    'too short' => ['12345'],
-    'invalid prefix' => ['01200000000'],
-    'too long' => ['017000000001234'],
-]);
-
-it('throws exception for invalid number format', function () {
-    $driver = new ConcreteDriver;
-    $driver->callFormatPhoneNumber('12345');
+    $driver->message('Test message')->send();
 })->throws(BartaException::class);
+
+it('throws exception when message is missing', function () {
+    $driver = new ConcreteDriver;
+    $driver->to('01700000000')->send();
+})->throws(BartaException::class);
+
+it('can set recipients and message', function () {
+    $driver = new ConcreteDriver;
+    $response = $driver->to('01700000000')->message('Test message')->send();
+
+    expect($response->success)->toBeTrue();
+});
